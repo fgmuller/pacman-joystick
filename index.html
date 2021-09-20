@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-142539004-1'></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-142539004-1');
+    </script>
+
+    <script src='build/app.js'></script>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/icon?family=Material+Icons'
+      rel='stylesheet'>
+    <title>Pacman</title>
+  </head>
+
+  <body>
+    <div id='overflow-mask' class='overflow-mask'>
+      <img id='backdrop' class='backdrop' src='app/style/graphics/backdrop.png'>
+
+      <div id='fps-display' class='fps-display'></div>
+      <div id='preload-div' class='preload-div'></div>
+
+      <div id='main-menu-container' class='main-menu-container'>
+        <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png'>
+        <button id='game-start' class='game-start'>
+          PLAY
+        </button>
+      </div>
+
+      <div class='header-buttons'>
+        <button>
+          <i id='pause-button' class='material-icons'>
+            pause
+          </i>
+        </button>
+        <button>
+          <i id='sound-button' class='material-icons'></i>
+        </button>
+      </div>
+
+      <div id='paused-text' class='paused-text'>
+        PAUSED
+      </div>
+
+      <div id='game-ui' class='game-ui'>
+        <div id='row-top' class='row top'>
+          <div class='column _25'>
+            <div class='one-up'>1UP</div>
+            <div id='points-display'></div>
+          </div>
+          <div class='column _50'>
+            <div>HIGH SCORE</div>
+            <div id='high-score-display'></div>
+          </div>
+        </div>
+
+        <div id='maze' class='maze'>
+          <img id='maze-img' class='maze-img' src='app/style//graphics/spriteSheets/maze/maze_blue.svg'>
+          <div id='maze-cover' class='maze-cover'></div>
+          <div id='dot-container'></div>
+          <p id='pacman' class='pacman'></p>
+          <p id='pacman-arrow' class='pacman'></p>
+          <p id='clyde' class='ghost'></p>
+          <p id='inky' class='ghost'></p>
+          <p id='pinky' class='ghost'></p>
+          <p id='blinky' class='ghost'></p>
+        </div>
+
+        <div id='bottom-row' class='row bottom'>
+          <div id='extra-lives' class='extra-lives'></div>
+          <div id='fruit-display' class='fruit-display'></div>
+        </div>
+      </div>
+
+
+
+
+
+
+      <div id='movement-buttons' class='movement-buttons'>
+        <div class='row'>
+          <button id='button-up' class='button-up'>
+            <i class='material-icons'>keyboard_arrow_up</i>
+          </button>
+        </div>
+        <div class='row'>
+          <button id='button-left' class='button-left'>
+            <i class='material-icons'>keyboard_arrow_left</i>
+          </button>
+          <button id='button-right' class='button-right'>
+            <i class='material-icons'>keyboard_arrow_right</i>
+          </button>
+        </div>
+        <div class='row'>
+          <button id='button-down' class='button-down'>
+            <i class='material-icons'>keyboard_arrow_down</i>
+          </button>
+        </div>
+      </div>
+
+      <div id='left-cover' class='loading-cover left'></div>
+      <div id='right-cover' class='loading-cover right'></div>
+      <div id='loading-container' class='loading-container'>
+        <div id='loading-pacman' class='loading-pacman'></div>
+        <div id='loading-dot-mask' class='loading-dot-mask'></div>
+        <div class='loading-dot _5'></div>
+        <div class='loading-dot _10'></div>
+        <div class='loading-dot _15'></div>
+        <div class='loading-dot _20'></div>
+        <div class='loading-dot _25'></div>
+        <div class='loading-dot _30'></div>
+        <div class='loading-dot _35'></div>
+        <div class='loading-dot _40'></div>
+        <div class='loading-dot _45'></div>
+        <div class='loading-dot _50'></div>
+        <div class='loading-dot _55'></div>
+        <div class='loading-dot _60'></div>
+        <div class='loading-dot _65'></div>
+        <div class='loading-dot _70'></div>
+        <div class='loading-dot _75'></div>
+        <div class='loading-dot _80'></div>
+        <div class='loading-dot _85'></div>
+        <div class='loading-dot _90'></div>
+        <div class='loading-dot _95'></div>
+      </div>
+
+      <div id='error-message' class='error-message'>
+        <div class='header'>
+          <div>OOPS!</div>
+          <div class='error-pacman'></div>
+        </div>
+        <div class='body'>
+          We were unable to load the images/sounds needed to play the game.</br></br>
+
+          This could be due to a poor connection, a strict network policy, or
+          by playing on an unsupported browser.
+        </div>
+      </div>
+
+      <script>
+        window.onload = () => {
+          let gameCoordinator = new GameCoordinator();
+        }
+      </script>
+    </div>
+
+
+
+
+          <hr>
+          <div style="border: 1px solid red; width: 128px; position: absolute; left:10px; top:150px;">
+          	<img src="images/joystick-base.png"/>
+          	<div id="stick1" style="position: absolute; left:32px; top:32px;">
+          	<img src="images/joystick-red.png"/>
+          	</div>
+          </div>
+
+
+
+          <script>
+
+          class JoystickController
+          {
+          	// stickID: ID of HTML element (representing joystick) that will be dragged
+          	// maxDistance: maximum amount joystick can move in any direction
+          	// deadzone: joystick must move at least this amount from origin to register value change
+          	constructor( stickID, maxDistance, deadzone )
+          	{
+          		this.id = stickID;
+          		let stick = document.getElementById(stickID);
+
+          		// location from which drag begins, used to calculate offsets
+          		this.dragStart = null;
+
+          		// track touch identifier in case multiple joysticks present
+          		this.touchId = null;
+
+          		this.active = false;
+          		this.value = { x: 0, y: 0 };
+
+          		let self = this;
+
+          		function handleDown(event)
+          		{
+          		    self.active = true;
+
+          			// all drag movements are instantaneous
+          			stick.style.transition = '0s';
+
+          			// touch event fired before mouse event; prevent redundant mouse event from firing
+          			event.preventDefault();
+
+          		    if (event.changedTouches)
+          		    	self.dragStart = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+          		    else
+          		    	self.dragStart = { x: event.clientX, y: event.clientY };
+
+          			// if this is a touch event, keep track of which one
+          		    if (event.changedTouches)
+          		    	self.touchId = event.changedTouches[0].identifier;
+          		}
+
+          		function handleMove(event)
+          		{
+          		    if ( !self.active ) return;
+
+          		    // if this is a touch event, make sure it is the right one
+          		    // also handle multiple simultaneous touchmove events
+          		    let touchmoveId = null;
+          		    if (event.changedTouches)
+          		    {
+          		    	for (let i = 0; i < event.changedTouches.length; i++)
+          		    	{
+          		    		if (self.touchId == event.changedTouches[i].identifier)
+          		    		{
+          		    			touchmoveId = i;
+          		    			event.clientX = event.changedTouches[i].clientX;
+          		    			event.clientY = event.changedTouches[i].clientY;
+          		    		}
+          		    	}
+
+          		    	if (touchmoveId == null) return;
+          		    }
+
+          		    const xDiff = event.clientX - self.dragStart.x;
+          		    const yDiff = event.clientY - self.dragStart.y;
+          		    const angle = Math.atan2(yDiff, xDiff);
+          			const distance = Math.min(maxDistance, Math.hypot(xDiff, yDiff));
+          			const xPosition = distance * Math.cos(angle);
+          			const yPosition = distance * Math.sin(angle);
+
+          			// move stick image to new position
+          		    stick.style.transform = `translate3d(${xPosition}px, ${yPosition}px, 0px)`;
+
+          			// deadzone adjustment
+          			const distance2 = (distance < deadzone) ? 0 : maxDistance / (maxDistance - deadzone) * (distance - deadzone);
+          		    const xPosition2 = distance2 * Math.cos(angle);
+          			const yPosition2 = distance2 * Math.sin(angle);
+          		    const xPercent = parseFloat((xPosition2 / maxDistance).toFixed(4));
+          		    const yPercent = parseFloat((yPosition2 / maxDistance).toFixed(4));
+
+          		    self.value = { x: xPercent, y: yPercent };
+          		  }
+
+          		function handleUp(event)
+          		{
+          		    if ( !self.active ) return;
+
+          		    // if this is a touch event, make sure it is the right one
+          		    if (event.changedTouches && self.touchId != event.changedTouches[0].identifier) return;
+
+          		    // transition the joystick position back to center
+          		    stick.style.transition = '.2s';
+          		    stick.style.transform = `translate3d(0px, 0px, 0px)`;
+
+          		    // reset everything
+          		    self.value = { x: 0, y: 0 };
+          		    self.touchId = null;
+          		    self.active = false;
+          		}
+
+          		stick.addEventListener('mousedown', handleDown);
+          		stick.addEventListener('touchstart', handleDown);
+          		document.addEventListener('mousemove', handleMove, {passive: false});
+          		document.addEventListener('touchmove', handleMove, {passive: false});
+          		document.addEventListener('mouseup', handleUp);
+          		document.addEventListener('touchend', handleUp);
+          	}
+          }
+
+          let joystick1 = new JoystickController("stick1", 64, 8);
+
+
+
+
+          function loop()
+          {
+          	requestAnimationFrame(loop);
+          
+          }
+
+          loop();
+
+          </script>
+
+  </body>
+</html>
